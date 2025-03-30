@@ -7,6 +7,7 @@ import com.example.teamproject.domain.ticket.repository.TicketRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -54,9 +55,15 @@ public class TicketService {
         ticket.setMenu(ticketDto.getMenu());
         ticket.setPrice(ticketDto.getPrice());
         ticket.setCount(ticketDto.getCount());
+        ticket.setTotalCount(ticketDto.getTotalCount());
         Ticket savedTicket = ticketRepository.save(ticket);
         return TicketDTO.fromEntity(savedTicket);
     }
 
+    public TicketDTO getTicket() {
+        List<Ticket> ticketList = ticketRepository.findAll();
+        if(!ticketList.isEmpty()) return TicketDTO.fromEntity(ticketList.get(ticketList.size()-1));
+        else return null;
     }
+}
 

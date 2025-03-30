@@ -15,10 +15,10 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String menu;
     private int price;
     private int count;
+    private int totalCount;
 
     public boolean isSoldOut(){
         return count <= 0;

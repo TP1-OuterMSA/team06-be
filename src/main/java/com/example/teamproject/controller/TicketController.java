@@ -14,7 +14,10 @@ public class TicketController {
     public TicketController(TicketService ticketService){
         this.ticketService = ticketService;
     }
-
+    @GetMapping
+    public TicketDTO getTicket(){
+        return ticketService.getTicket();
+    }
     @PostMapping("/{id}/purchase")
     public PurchaseResponseDto purchaseTicket(@PathVariable Long id) {
         return ticketService.purchaseTicket(id);

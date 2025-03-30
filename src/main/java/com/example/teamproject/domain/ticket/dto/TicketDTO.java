@@ -9,6 +9,7 @@ public class TicketDTO {
     private String menu;
     private int price;
     private int count;
+    private int totalCount;
     private boolean soldOut;
 
     public static TicketDTO fromEntity(Ticket ticket) {
@@ -17,6 +18,7 @@ public class TicketDTO {
         dto.setMenu(ticket.getMenu());
         dto.setPrice(ticket.getPrice());
         dto.setCount(ticket.getCount());
+        dto.setTotalCount(ticket.getTotalCount());
         dto.setSoldOut(ticket.isSoldOut());
         return dto;
     }
