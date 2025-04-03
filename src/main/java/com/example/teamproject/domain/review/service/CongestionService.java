@@ -20,9 +20,9 @@ public class CongestionService {
     private final ReviewRepository reviewRepository;
 
     public List<CongestionResponseDto> getCongestionByMealTime(String mealTime) {
-        // 예상 방문 시간 슬롯 생성
-        List<String> expectedTimeSlots = getExpectedTimeSlots(mealTime);
-        // mealTime(조식, 중식, 석식)별 리뷰 조회
+        // mealTime에 따른 visitTime 슬롯 생성
+        List<String> expectedTimeSlots = getTimeSlots(mealTime);
+        // mealTime별 리뷰 조회
         List<Review> reviews = reviewRepository.findByMealTime(mealTime);
 
         // 방문시간(visitTime)별로 리뷰 그룹핑
@@ -46,32 +46,29 @@ public class CongestionService {
         return result;
     }
 
-    // mealTime에 따른 예상 방문시간 슬롯 생성
-    private List<String> getExpectedTimeSlots(String mealTime) {
+    // mealTime에 따른 방문시간 슬롯 생성
+    private List<String> getTimeSlots(String mealTime) {
         List<String> timeSlots = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:mm");
-        if (mealTime.equals("조식")) {
-            // 조식: 8:00 ~ 9:00, 총 4타임 (예: 8:00, 8:15, 8:30, 8:45)
-            LocalTime time = LocalTime.of(8, 0);
-            LocalTime end = LocalTime.of(9, 0);
-            while(time.isBefore(end)) {
-                timeSlots.add(time.format(formatter));
-                time = time.plusMinutes(15);
-            }
-        } else if (mealTime.equals("중식")) {
-            // 중식: 11:30 ~ 14:00, 15분 단위로 총 10타임
-            LocalTime time = LocalTime.of(11, 30);
-            for (int i = 0; i < 10; i++) {
-                timeSlots.add(time.format(formatter));
-                time = time.plusMinutes(15);
-            }
-        } else if (mealTime.equals("석식")) {
-            // 석식: 17:00 ~ 18:30, 총 6타임 (예: 17:00, 17:15, 17:30, 17:45, 18:00, 18:15)
-            LocalTime time = LocalTime.of(17, 0);
-            for (int i = 0; i < 6; i++) {
-                timeSlots.add(time.format(formatter));
-                time = time.plusMinutes(15);
-            }
+        LocalTime start = LocalTime.of(0, 0);
+        LocalTime end =LocalTime.of(0, 0);
+        switch(mealTime){
+            case "조식":
+                start = LocalTime.of(8, 0);
+                end = LocalTime.of(9, 0);
+                break;
+            case "중식":
+                start = LocalTime.of(11, 30);
+                end = LocalTime.of(14, 0);
+                break;
+            case "석식":
+                start = LocalTime.of(17, 0);
+                end = LocalTime.of(18, 30);
+                break;
+        }
+        while(start.isBefore(end)) {
+            timeSlots.add(start.format(formatter));
+            start = start.plusMinutes(15);
         }
         return timeSlots;
     }
