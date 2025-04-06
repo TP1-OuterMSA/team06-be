@@ -49,7 +49,7 @@ public class CongestionService {
     // mealTime에 따른 방문시간 슬롯 생성
     private List<String> getTimeSlots(String mealTime) {
         List<String> timeSlots = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         LocalTime start = LocalTime.of(0, 0);
         LocalTime end =LocalTime.of(0, 0);
         switch(mealTime){
