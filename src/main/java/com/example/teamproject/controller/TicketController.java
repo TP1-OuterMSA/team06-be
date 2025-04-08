@@ -6,7 +6,7 @@ import com.example.teamproject.domain.ticket.service.TicketService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/ticket")
+@RequestMapping("/api/team6/ticket")
 public class TicketController {
 
     private final TicketService ticketService;
