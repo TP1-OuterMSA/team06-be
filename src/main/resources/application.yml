@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: team-project
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/team
+    username: root
+    password: "0304"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: true
