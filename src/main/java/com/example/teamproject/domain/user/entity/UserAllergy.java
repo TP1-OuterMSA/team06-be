@@ -1,7 +1,6 @@
-package com.example.teamproject.domain.userAllergy.entity;
+package com.example.teamproject.domain.user.entity;
 
 import com.example.teamproject.domain.allergy.entity.Allergy;
-import com.example.teamproject.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,4 +20,11 @@ public class UserAllergy {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "allergy_id")
     private Allergy allergy;
+
+    public static UserAllergy of(User user, Allergy allergy) {
+        UserAllergy userAllergy = new UserAllergy();
+        userAllergy.user = user;
+        userAllergy.allergy = allergy;
+        return userAllergy;
+    }
 }

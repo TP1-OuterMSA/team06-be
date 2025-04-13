@@ -1,5 +1,6 @@
 package com.example.teamproject.domain.user.service;
 
+import com.example.teamproject.domain.allergy.entity.Allergy;
 import com.example.teamproject.domain.user.dto.request.LoginDto;
 import com.example.teamproject.domain.user.dto.request.SignupDto;
 import com.example.teamproject.domain.user.dto.response.UserDto;
@@ -8,15 +9,26 @@ import com.example.teamproject.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserAllergyService userAllergyService;
 
     public UserDto signup(SignupDto signupDto) {
+        if(userRepository.existsByUsername(signupDto.getUsername()))
+            throw new IllegalArgumentException("이미 존재하는 사용자입니다.");
+
         User user = User.from(signupDto);
         userRepository.save(user);
+
+        List<Long> allergies = signupDto.getAllergies();
+        if (allergies != null && !allergies.isEmpty()) {
+            for (Long allergyId : allergies) userAllergyService.saveUserAllergy(user, allergyId);
+        }
 
         return UserDto.builder()
                 .id(user.getId())
@@ -25,14 +37,20 @@ public class UserService {
                 .build();
     }
 
-    public UserDto login(LoginDto loginDto){
-        User user = userRepository.findByUsername(loginDto.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+    public UserDto login(LoginDto loginDto) {
+        User user = getUserByUsername(loginDto.getUsername());
+        if (!user.getPassword().equals(loginDto.getPassword()))
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
 
         return UserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsername())
                 .build();
+    }
+
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     }
 }
