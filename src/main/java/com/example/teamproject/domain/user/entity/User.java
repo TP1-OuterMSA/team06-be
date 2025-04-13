@@ -1,6 +1,9 @@
 package com.example.teamproject.domain.user.entity;
 
+import com.example.teamproject.domain.user.dto.request.SignupDto;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -11,6 +14,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class User {
@@ -28,5 +33,14 @@ public class User {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public static User from(SignupDto dto) {
+        return User.builder()
+                .username(dto.getUsername())
+                .email(dto.getEmail())
+                .password(dto.getPassword())
+                .role("USER")
+                .build();
+    }
 
 }
