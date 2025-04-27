@@ -8,6 +8,8 @@ import com.example.teamproject.domain.user.repository.UserAllergyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserAllergyService {
@@ -18,5 +20,11 @@ public class UserAllergyService {
     public void saveUserAllergy(User user, Long allergyId) {
         Allergy allergy = allergyService.getAllergyById(allergyId);
         userAllergyRepository.save(UserAllergy.of(user, allergy));
+    }
+
+    public List<String> getAllergyNamesByUserId(Long userId) {
+        return userAllergyRepository.findByUserId(userId).stream()
+                .map(ua -> ua.getAllergy().getName())
+                .toList();
     }
 }

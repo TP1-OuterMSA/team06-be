@@ -3,7 +3,6 @@ package com.example.teamproject.domain.user.controller;
 import com.example.teamproject.domain.user.dto.request.LoginDto;
 import com.example.teamproject.domain.user.dto.request.SignupDto;
 import com.example.teamproject.domain.user.dto.response.UserDto;
-import com.example.teamproject.domain.user.entity.User;
 import com.example.teamproject.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +23,11 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<UserDto> login(@RequestBody LoginDto loginDto){
         return ResponseEntity.ok(userService.login(loginDto));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getMyPage(@RequestParam Long userId) {
+        return ResponseEntity.ok(userService.getMyProfile(userId));
     }
 
 }

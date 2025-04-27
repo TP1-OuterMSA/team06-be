@@ -1,6 +1,5 @@
 package com.example.teamproject.domain.user.service;
 
-import com.example.teamproject.domain.allergy.entity.Allergy;
 import com.example.teamproject.domain.user.dto.request.LoginDto;
 import com.example.teamproject.domain.user.dto.request.SignupDto;
 import com.example.teamproject.domain.user.dto.response.UserDto;
@@ -53,4 +52,16 @@ public class UserService {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     }
+
+    public UserDto getMyProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        List<String> allergyNames = userAllergyService.getAllergyNamesByUserId(userId);
+
+        return UserDto.from(user, allergyNames);
+    }
+
+
+
 }
