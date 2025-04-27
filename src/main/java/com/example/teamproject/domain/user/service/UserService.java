@@ -2,11 +2,13 @@ package com.example.teamproject.domain.user.service;
 
 import com.example.teamproject.domain.user.dto.request.LoginDto;
 import com.example.teamproject.domain.user.dto.request.SignupDto;
+import com.example.teamproject.domain.user.dto.request.UpdateUserDto;
 import com.example.teamproject.domain.user.dto.response.UserDto;
 import com.example.teamproject.domain.user.entity.User;
 import com.example.teamproject.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -62,6 +64,25 @@ public class UserService {
         return UserDto.from(user, allergyNames);
     }
 
+    @Transactional
+    public UserDto updateUser(Long userId, UpdateUserDto dto) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if (dto.getUsername() != null && !dto.getUsername().equals(user.getUsername())) {
+            if (userRepository.existsByUsername(dto.getUsername()))
+                throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            user.setUsername(dto.getUsername());
+        }
+        if (dto.getEmail()    != null) user.setEmail(dto.getEmail());
+        if (dto.getPassword() != null) user.setPassword(dto.getPassword());
+
+        userAllergyService.replaceUserAllergies(user, dto.getAllergies());
+
+        List<String> allergyNames = userAllergyService.getAllergyNamesByUserId(userId);
+        return UserDto.from(user, allergyNames);
+    }
 
 
 }

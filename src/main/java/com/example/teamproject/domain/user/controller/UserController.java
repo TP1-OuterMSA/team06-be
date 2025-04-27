@@ -2,6 +2,7 @@ package com.example.teamproject.domain.user.controller;
 
 import com.example.teamproject.domain.user.dto.request.LoginDto;
 import com.example.teamproject.domain.user.dto.request.SignupDto;
+import com.example.teamproject.domain.user.dto.request.UpdateUserDto;
 import com.example.teamproject.domain.user.dto.response.UserDto;
 import com.example.teamproject.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,13 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserDto> getMyPage(@RequestParam Long userId) {
         return ResponseEntity.ok(userService.getMyProfile(userId));
+    }
+
+    @PatchMapping("/update/{userId}")
+    public ResponseEntity<UserDto> updateUser(
+            @PathVariable Long userId,
+            @RequestBody UpdateUserDto dto) {
+        return ResponseEntity.ok(userService.updateUser(userId, dto));
     }
 
 }

@@ -2,10 +2,7 @@ package com.example.teamproject.domain.user.entity;
 
 import com.example.teamproject.domain.user.dto.request.SignupDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -23,8 +20,11 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Setter
     private String username;
+    @Setter
     private String email;
+    @Setter
     private String password;
     private String role;
 

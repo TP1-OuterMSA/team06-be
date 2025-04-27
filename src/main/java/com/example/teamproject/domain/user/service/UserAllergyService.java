@@ -7,6 +7,7 @@ import com.example.teamproject.domain.user.entity.UserAllergy;
 import com.example.teamproject.domain.user.repository.UserAllergyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,5 +27,16 @@ public class UserAllergyService {
         return userAllergyRepository.findByUserId(userId).stream()
                 .map(ua -> ua.getAllergy().getName())
                 .toList();
+    }
+
+    @Transactional
+    public void replaceUserAllergies(User user, List<Long> allergyIds) {
+        if (allergyIds == null) return;                 // 변경 없음
+
+        userAllergyRepository.deleteByUserId(user.getId());
+
+        if (!allergyIds.isEmpty()) {
+            for (Long id : allergyIds) saveUserAllergy(user, id);
+        }
     }
 }

@@ -9,4 +9,6 @@ public interface UserAllergyRepository extends JpaRepository<UserAllergy, Long> 
     // Custom query methods can be defined here if needed
 
     List<UserAllergy> findByUserId(Long userId);
+    void deleteByUserId(Long userId);
+
 }
