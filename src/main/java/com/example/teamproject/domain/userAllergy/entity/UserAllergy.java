@@ -1,6 +1,7 @@
-package com.example.teamproject.domain.user.entity;
+package com.example.teamproject.domain.userAllergy.entity;
 
 import com.example.teamproject.domain.allergy.entity.Allergy;
+import com.example.teamproject.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

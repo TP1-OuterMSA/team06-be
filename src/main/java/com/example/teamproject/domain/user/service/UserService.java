@@ -6,6 +6,7 @@ import com.example.teamproject.domain.user.dto.request.UpdateUserDto;
 import com.example.teamproject.domain.user.dto.response.UserDto;
 import com.example.teamproject.domain.user.entity.User;
 import com.example.teamproject.domain.user.repository.UserRepository;
+import com.example.teamproject.domain.userAllergy.service.UserAllergyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,8 +61,12 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         List<String> allergyNames = userAllergyService.getAllergyNamesByUserId(userId);
-
         return UserDto.from(user, allergyNames);
+    }
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     }
 
     @Transactional
@@ -78,7 +83,7 @@ public class UserService {
         if (dto.getEmail()    != null) user.setEmail(dto.getEmail());
         if (dto.getPassword() != null) user.setPassword(dto.getPassword());
 
-        userAllergyService.replaceUserAllergies(user, dto.getAllergies());
+        userAllergyService.replaceUserAllergies(user.getId(), dto.getAllergies());
 
         List<String> allergyNames = userAllergyService.getAllergyNamesByUserId(userId);
         return UserDto.from(user, allergyNames);

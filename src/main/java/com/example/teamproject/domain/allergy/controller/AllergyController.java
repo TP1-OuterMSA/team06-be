@@ -4,10 +4,9 @@ import com.example.teamproject.domain.allergy.entity.Allergy;
 import com.example.teamproject.domain.allergy.service.AllergyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/team6/allergy")
@@ -19,6 +18,11 @@ public class AllergyController {
     @PostMapping("/{name}")
     public ResponseEntity<Allergy> addAllergy(@PathVariable String name){
         return ResponseEntity.ok(allergyService.addAllergy(name));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Allergy>> getAllAllergies(){
+        return ResponseEntity.ok(allergyService.getAllAllergies());
     }
 
 }

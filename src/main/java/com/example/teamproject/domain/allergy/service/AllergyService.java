@@ -5,6 +5,8 @@ import com.example.teamproject.domain.allergy.repository.AllergyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AllergyService {
@@ -18,5 +20,9 @@ public class AllergyService {
     public Allergy getAllergyById(Long allergyId) {
         return allergyRepository.findById(allergyId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알레르기입니다."));
+    }
+
+    public List<Allergy> getAllAllergies() {
+        return allergyRepository.findAll();
     }
 }

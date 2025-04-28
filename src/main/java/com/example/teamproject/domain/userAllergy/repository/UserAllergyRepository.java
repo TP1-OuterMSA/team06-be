@@ -1,6 +1,6 @@
-package com.example.teamproject.domain.user.repository;
+package com.example.teamproject.domain.userAllergy.repository;
 
-import com.example.teamproject.domain.user.entity.UserAllergy;
+import com.example.teamproject.domain.userAllergy.entity.UserAllergy;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -10,5 +10,6 @@ public interface UserAllergyRepository extends JpaRepository<UserAllergy, Long> 
 
     List<UserAllergy> findByUserId(Long userId);
     void deleteByUserId(Long userId);
+    void deleteAllByUserIdAndAllergyIdIn(Long userId, List<Long> allergyIds);
 
 }
