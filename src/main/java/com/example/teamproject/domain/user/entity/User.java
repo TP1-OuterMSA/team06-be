@@ -26,6 +26,8 @@ public class User {
     private String email;
     @Setter
     private String password;
+    @Setter
+    private String nickname;
     private String role;
 
     @CreatedDate
@@ -38,6 +40,7 @@ public class User {
         return User.builder()
                 .username(dto.getUsername())
                 .email(dto.getEmail())
+                .nickname(dto.getNickname())
                 .password(dto.getPassword())
                 .role("USER")
                 .build();

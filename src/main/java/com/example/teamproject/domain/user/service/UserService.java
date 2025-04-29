@@ -35,6 +35,7 @@ public class UserService {
         return UserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
+                .nickname(user.getNickname())
                 .username(user.getUsername())
                 .build();
     }
@@ -47,6 +48,7 @@ public class UserService {
         return UserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
+                .nickname(user.getNickname())
                 .username(user.getUsername())
                 .build();
     }
@@ -64,21 +66,16 @@ public class UserService {
         return UserDto.from(user, allergyNames);
     }
 
-    public User findById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-    }
-
     @Transactional
     public UserDto updateUser(Long userId, UpdateUserDto dto) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        if (dto.getUsername() != null && !dto.getUsername().equals(user.getUsername())) {
-            if (userRepository.existsByUsername(dto.getUsername()))
-                throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
-            user.setUsername(dto.getUsername());
+        if (dto.getNickname() != null && !dto.getNickname().equals(user.getUsername())) {
+//            if (userRepository.existsByUsername(dto.getNickname()))
+//                throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            user.setNickname(dto.getNickname());
         }
         if (dto.getEmail()    != null) user.setEmail(dto.getEmail());
         if (dto.getPassword() != null) user.setPassword(dto.getPassword());

@@ -12,6 +12,7 @@ public class UserDto {
     private Long id;
     private String username;
     private String email;
+    private String nickname;
     private List<String> allergies;
 
     public static UserDto from(User user, List<String> allergies) {
@@ -19,6 +20,7 @@ public class UserDto {
                 .id(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsername())
+                .nickname(user.getNickname())
                 .allergies(allergies)
                 .build();
     }
