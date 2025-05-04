@@ -8,10 +8,14 @@ import com.example.teamproject.domain.user.entity.User;
 import com.example.teamproject.domain.user.repository.UserRepository;
 import com.example.teamproject.domain.userAllergy.service.UserAllergyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -86,5 +90,28 @@ public class UserService {
         return UserDto.from(user, allergyNames);
     }
 
+    @Transactional
+    public void saveProfileImage(Long userId, MultipartFile file) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다. id=" + userId));
+
+        try {
+            user.setProfileImage(file.getBytes());
+            user.setProfileImageType(file.getContentType());
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 변환 실패", e);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public Pair<byte[], String> loadProfileImage(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다. id=" + userId));
+
+        if (user.getProfileImage() == null)
+            throw new NoSuchElementException("저장된 프로필 이미지가 없습니다.");
+
+        return Pair.of(user.getProfileImage(), user.getProfileImageType());
+    }
 
 }
