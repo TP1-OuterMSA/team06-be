@@ -3,9 +3,9 @@ spring:
     name: team-project
 
   datasource:
-    url: jdbc:mysql://localhost:3306/team
+    url: jdbc:mysql://localhost:3306/team_project
     username: root
-    password: "0304"
+    password: pw
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database: mysql
