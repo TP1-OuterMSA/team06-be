@@ -24,6 +24,20 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserAllergyService userAllergyService;
 
+    private UserDto toDto(User user) {
+        List<String> allergyNames = userAllergyService.getAllergyNamesByUserId(user.getId());
+        String imgUrl = "/api/team6/user/" + user.getId() + "/profile-image";
+
+        return UserDto.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .allergies(allergyNames)
+                .profileImageUrl(imgUrl)
+                .build();
+    }
+
     public UserDto signup(SignupDto signupDto) {
         if(userRepository.existsByUsername(signupDto.getUsername()))
             throw new IllegalArgumentException("이미 존재하는 사용자입니다.");
@@ -91,7 +105,7 @@ public class UserService {
     }
 
     @Transactional
-    public void saveProfileImage(Long userId, MultipartFile file) {
+    public UserDto saveProfileImage(Long userId, MultipartFile file) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다. id=" + userId));
 
@@ -101,6 +115,8 @@ public class UserService {
         } catch (IOException e) {
             throw new RuntimeException("이미지 변환 실패", e);
         }
+
+        return toDto(user);
     }
 
     @Transactional(readOnly = true)

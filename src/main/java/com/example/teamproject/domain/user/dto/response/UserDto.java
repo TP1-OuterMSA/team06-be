@@ -14,14 +14,17 @@ public class UserDto {
     private String email;
     private String nickname;
     private List<String> allergies;
+    private String profileImageUrl;
 
     public static UserDto from(User user, List<String> allergies) {
+        String imgUrl = "/api/team6/user/" + user.getId() + "/profile-image";
         return UserDto.builder()
                 .id(user.getId())
-                .email(user.getEmail())
                 .username(user.getUsername())
+                .email(user.getEmail())
                 .nickname(user.getNickname())
                 .allergies(allergies)
+                .profileImageUrl(imgUrl)
                 .build();
     }
 }

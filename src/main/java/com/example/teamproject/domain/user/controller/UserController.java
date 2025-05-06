@@ -8,6 +8,7 @@ import com.example.teamproject.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.util.Pair;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,13 +43,16 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(userId, dto));
     }
 
-    @PostMapping(value = "/{id}/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadProfileImage(
+    @PostMapping(
+            value = "/{id}/profile-image",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<UserDto> uploadProfileImage(
             @PathVariable("id") Long userId,
-            @RequestPart("file") MultipartFile file
-    ) {
-        userService.saveProfileImage(userId, file);
-        return ResponseEntity.ok("프로필 이미지 저장 완료");
+            @RequestPart("file") MultipartFile file) {
+
+        UserDto updated = userService.saveProfileImage(userId, file);
+        return ResponseEntity.ok(updated);
     }
 
     @GetMapping("/{id}/profile-image")
@@ -61,6 +65,7 @@ public class UserController {
 
         ByteArrayResource resource = new ByteArrayResource(imageBytes);
         return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache())
                 .contentLength(imageBytes.length)
                 .contentType(MediaType.parseMediaType(contentType))
                 .body(resource);
