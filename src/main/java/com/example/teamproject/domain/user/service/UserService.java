@@ -26,7 +26,9 @@ public class UserService {
 
     private UserDto toDto(User user) {
         List<String> allergyNames = userAllergyService.getAllergyNamesByUserId(user.getId());
-        String imgUrl = "/api/team6/user/" + user.getId() + "/profile-image";
+        String imgUrl = user.getProfileImage() != null
+                ? "/api/team6/user/" + user.getId() + "/profile-image"
+                : null;   // 업로드된 이미지가 없으면 null
 
         return UserDto.builder()
                 .id(user.getId())
@@ -63,12 +65,7 @@ public class UserService {
         if (!user.getPassword().equals(loginDto.getPassword()))
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
 
-        return UserDto.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .nickname(user.getNickname())
-                .username(user.getUsername())
-                .build();
+        return toDto(user);
     }
 
     public User getUserByUsername(String username) {
