@@ -6,12 +6,14 @@ import com.example.teamproject.domain.user.dto.request.UpdateUserDto;
 import com.example.teamproject.domain.user.dto.response.UserDto;
 import com.example.teamproject.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.util.Pair;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 
 @RestController
 @RequestMapping("/api/team6/user")
