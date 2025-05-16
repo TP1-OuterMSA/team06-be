@@ -13,6 +13,7 @@ public class UserDto {
     private String username;
     private String email;
     private String nickname;
+    private String jwtToken;
     private List<String> allergies;
 
     public static UserDto from(User user, List<String> allergies) {

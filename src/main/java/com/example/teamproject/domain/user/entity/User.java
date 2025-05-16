@@ -36,6 +36,17 @@ public class User {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+
+    @Lob
+    @Column(name = "profile_image", columnDefinition = "LONGBLOB")
+    @Setter
+    private byte[] profileImage;
+
+    @Column(name = "profile_image_type")
+    @Setter
+    private String profileImageType;
+
+
     public static User from(SignupDto dto) {
         return User.builder()
                 .username(dto.getUsername())
