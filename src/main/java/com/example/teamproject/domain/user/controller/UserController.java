@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/team6/user")
@@ -121,5 +122,15 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<PromotionRequest>> listPending() {
         return ResponseEntity.ok(promotionService.listPending());
+    }
+
+    /** 내 승격 요청 상태 조회 (USER 권한 이상) */
+    @GetMapping("/promotion/status")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<String, String>> getPromotionStatus(
+            @AuthenticationPrincipal UserDetails principal
+    ) {
+        String status = promotionService.getMyPromotionStatus(principal.getUsername());
+        return ResponseEntity.ok(Map.of("status", status));
     }
 }
