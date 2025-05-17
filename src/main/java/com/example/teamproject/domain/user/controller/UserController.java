@@ -4,6 +4,8 @@ import com.example.teamproject.domain.user.dto.request.LoginDto;
 import com.example.teamproject.domain.user.dto.request.SignupDto;
 import com.example.teamproject.domain.user.dto.request.UpdateUserDto;
 import com.example.teamproject.domain.user.dto.response.UserDto;
+import com.example.teamproject.domain.user.entity.PromotionRequest;
+import com.example.teamproject.domain.user.service.PromotionService;
 import com.example.teamproject.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -16,12 +18,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/team6/user")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+    private final PromotionService promotionService;
 
     /** 회원가입 → JWT 발급 */
     @PostMapping("/signup")
@@ -82,5 +87,39 @@ public class UserController {
                 .contentLength(data.getFirst().length)
                 .contentType(MediaType.parseMediaType(data.getSecond()))
                 .body(resource);
+    }
+
+
+    /** 1) 회원 → 관리자 승격 요청 */
+    @PostMapping("/promotion/request")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> requestPromotion(
+            @AuthenticationPrincipal UserDetails principal
+    ) {
+        promotionService.requestPromotion(principal.getUsername());
+        return ResponseEntity.ok("승격 요청이 관리자에게 전달되었습니다.");
+    }
+
+    /** 2) ADMIN → 특정 요청 승인 */
+    @PostMapping("/promotion/approve/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> approvePromotion(@PathVariable Long id) {
+        promotionService.approve(id);
+        return ResponseEntity.ok("승격 요청이 승인되었습니다.");
+    }
+
+    /** 3) ADMIN → 특정 요청 거절 */
+    @PostMapping("/promotion/reject/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> rejectPromotion(@PathVariable Long id) {
+        promotionService.reject(id);
+        return ResponseEntity.ok("승격 요청이 거절되었습니다.");
+    }
+
+    /** 4) ADMIN → 대기 중인 요청 조회 (선택) */
+    @GetMapping("/promotion/pending")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<PromotionRequest>> listPending() {
+        return ResponseEntity.ok(promotionService.listPending());
     }
 }
