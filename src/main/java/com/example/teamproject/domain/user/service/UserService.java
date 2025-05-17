@@ -79,6 +79,7 @@ public class UserService {
                 .nickname(user.getNickname())
                 .allergies(allergyNames)
                 .jwtToken(token)
+                .role(user.getRole())
                 .build();
     }
 

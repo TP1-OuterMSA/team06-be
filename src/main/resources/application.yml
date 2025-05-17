@@ -8,9 +8,9 @@ spring:
     name: team-project
 
   datasource:
-    url: jdbc:mysql://localhost:3306/team_project
+    url: jdbc:mysql://localhost:3306/team
     username: root
-    password: pw
+    password: "0304"
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database: mysql
@@ -22,3 +22,14 @@ spring:
       hibernate:
         format_sql: false
         use_sql_comments: true
+  mail:
+    host: smtp.gmail.com        # SMTP 서버 호스트
+    port: 587                   # SMTP 서버 포트
+    username: beomjin754        # SMTP 서버 로그인 아이디
+    password: rydcftyyuvpthhfs  # SMTP 서버 로그인 비밀번호
+    properties:
+      mail:
+        smtp:
+          auth: true            # 사용자 인증 시도 여부
+          starttls:
+            enable: true        # starttls 활성화 여부
