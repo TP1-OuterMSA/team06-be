@@ -30,11 +30,9 @@ public class PromotionService {
     /** 1) 사용자 → 관리자 승격 요청 */
     @Transactional
     public PromotionRequest requestPromotion(String username) {
-        // 1) 사용자 조회
         User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        // 2) 이미 PENDING 요청이 있는지 검사 (람다 대신 for-loop)
         List<PromotionRequest> pendingList = promoRepo.findByStatus(Status.PENDING);
         for (PromotionRequest existing : pendingList) {
             if (existing.getUser().getId().equals(user.getId())) {
@@ -42,7 +40,6 @@ public class PromotionService {
             }
         }
 
-        // 3) 새 요청 저장
         PromotionRequest req = PromotionRequest.builder()
                 .user(user)
                 .status(Status.PENDING)
@@ -50,16 +47,13 @@ public class PromotionService {
                 .build();
         promoRepo.save(req);
 
-        // 4) ADMIN들에게 메일 발송
         sendRequestEmailsToAdmins(req);
 
         return req;
     }
 
     private void sendRequestEmailsToAdmins(PromotionRequest req) {
-        // 1) 모든 사용자 조회
         List<User> allUsers = userRepo.findAll();
-        // 2) ADMIN만 필터링
         List<User> admins = new ArrayList<>();
         for (User u : allUsers) {
             if ("ADMIN".equals(u.getRole())) {
@@ -67,7 +61,6 @@ public class PromotionService {
             }
         }
 
-        // 3) 각 ADMIN에게 HTML 메일 전송
         for (User admin : admins) {
             try {
                 MimeMessage message = mailSender.createMimeMessage();
@@ -98,7 +91,6 @@ public class PromotionService {
                 helper.setText(html, true);
                 mailSender.send(message);
             } catch (MessagingException e) {
-                // 로깅
                 System.err.println("메일 전송 실패 to " + admin.getEmail());
                 e.printStackTrace();
             }
@@ -137,7 +129,6 @@ public class PromotionService {
     /** 4) ADMIN → 대기 중인 요청 조회 */
     @Transactional(readOnly = true)
     public List<PromotionRequest> listPending() {
-        // 람다 없이 바로 리포지토리 호출만으로 반환합니다.
         return promoRepo.findByStatus(Status.PENDING);
     }
 
@@ -146,7 +137,6 @@ public class PromotionService {
         User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        // 사용자에 대한 모든 요청을 요청 시간 내림차순으로 가져오기
         List<PromotionRequest> list = promoRepo.findByUserOrderByRequestedAtDesc(user);
         if (list.isEmpty()) {
             return "NONE";
