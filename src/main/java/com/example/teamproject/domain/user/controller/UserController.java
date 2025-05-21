@@ -1,7 +1,5 @@
 package com.example.teamproject.domain.user.controller;
 
-import com.example.teamproject.domain.user.dto.request.LoginDto;
-import com.example.teamproject.domain.user.dto.request.SignupDto;
 import com.example.teamproject.domain.user.dto.request.UpdateUserDto;
 import com.example.teamproject.domain.user.dto.response.UserDto;
 import com.example.teamproject.domain.user.entity.PromotionRequest;

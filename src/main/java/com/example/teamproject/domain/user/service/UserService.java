@@ -61,7 +61,6 @@ public class UserService {
         List<String> allergyNames = userAllergyService.getAllergyNamesByUserId(user.getId());
         return UserDto.from(user, allergyNames);
     }
-
     /**
      * 프로필 수정
      */
