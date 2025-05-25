@@ -61,3 +61,5 @@ out/
 .vscode/
 
 .DS_Store
+
+application.yml

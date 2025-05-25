@@ -28,6 +28,7 @@ public class User {
     private String password;
     @Setter
     private String nickname;
+    @Setter
     private String role;
 
     @CreatedDate

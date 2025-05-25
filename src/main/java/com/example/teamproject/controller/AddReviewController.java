@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/team6/reviews")
+@RequestMapping("api/team6/reviews")
 @RequiredArgsConstructor
 public class AddReviewController {
     private final AddReviewService addreviewService;

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/team6/congestion")
+@RequestMapping("api/team6/congestion")
 @RequiredArgsConstructor
 public class CongestionController {
     private final CongestionService congestionService;
