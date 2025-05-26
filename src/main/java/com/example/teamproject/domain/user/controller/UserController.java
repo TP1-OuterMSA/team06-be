@@ -1,7 +1,5 @@
 package com.example.teamproject.domain.user.controller;
 
-import com.example.teamproject.domain.user.dto.request.LoginDto;
-import com.example.teamproject.domain.user.dto.request.SignupDto;
 import com.example.teamproject.domain.user.dto.request.UpdateUserDto;
 import com.example.teamproject.domain.user.dto.response.UserDto;
 import com.example.teamproject.domain.user.entity.PromotionRequest;
@@ -9,12 +7,8 @@ import com.example.teamproject.domain.user.service.PromotionService;
 import com.example.teamproject.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.data.util.Pair;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,67 +16,55 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/team6/user")
+@RequestMapping("api/team6/user")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
     private final PromotionService promotionService;
 
-    /** 회원가입 → JWT 발급 */
-    @PostMapping("/signup")
-    public ResponseEntity<UserDto> signup(@RequestBody SignupDto signupDto) {
-        UserDto signed = userService.signup(signupDto);
-        return ResponseEntity.ok(signed);
-    }
+//    /** 회원가입 → (delegated to auth server) */
+//    @PostMapping("/signup")
+//    public ResponseEntity<UserDto> signup(@RequestBody SignupDto signupDto) {
+//        UserDto signed = userService.signup(signupDto);
+//        return ResponseEntity.ok(signed);
+//    }
 
-    /** 로그인 → JWT 발급 */
-    @PostMapping("/login")
-    public ResponseEntity<UserDto> login(@RequestBody LoginDto loginDto) {
-        UserDto logged = userService.login(loginDto);
-        return ResponseEntity.ok(logged);
-    }
-
-    /** 내 정보 조회 (인증 필요) */
+    /** 내 정보 조회 */
     @GetMapping("/me")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDto> getMyPage(
-            @AuthenticationPrincipal UserDetails principal
+            @RequestHeader("username") String username
     ) {
-        // principal.getUsername() 으로 현재 사용자 조회
-        UserDto me = userService.getByUsername(principal.getUsername());
+        UserDto me = userService.getByUsername(username);
         return ResponseEntity.ok(me);
     }
 
-    /** 내 정보 수정 (인증 필요) */
+    /** 내 정보 수정 */
     @PatchMapping("/update")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDto> updateUser(
-            @AuthenticationPrincipal UserDetails principal,
+            @RequestHeader("username") String username,
             @RequestBody UpdateUserDto dto
     ) {
-        UserDto updated = userService.updateByUsername(principal.getUsername(), dto);
+        UserDto updated = userService.updateByUsername(username, dto);
         return ResponseEntity.ok(updated);
     }
 
-    /** 나의 프로필 이미지 업로드 (인증 필요) */
+    /** 프로필 이미지 업로드 */
     @PostMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> uploadProfileImage(
-            @AuthenticationPrincipal UserDetails principal,
+            @RequestHeader("username") String username,
             @RequestPart("file") MultipartFile file
     ) {
-        userService.saveProfileImageByUsername(principal.getUsername(), file);
+        userService.saveProfileImageByUsername(username, file);
         return ResponseEntity.ok("프로필 이미지 저장 완료");
     }
 
-    /** 나의 프로필 이미지 다운로드 (인증 필요) */
+    /** 프로필 이미지 다운로드 */
     @GetMapping("/profile-image")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ByteArrayResource> downloadProfileImage(
-            @AuthenticationPrincipal UserDetails principal
+            @RequestHeader("username") String username
     ) {
-        Pair<byte[], String> data = userService.loadProfileImageByUsername(principal.getUsername());
+        var data = userService.loadProfileImageByUsername(username);
         ByteArrayResource resource = new ByteArrayResource(data.getFirst());
         return ResponseEntity.ok()
                 .contentLength(data.getFirst().length)
@@ -90,47 +72,49 @@ public class UserController {
                 .body(resource);
     }
 
-
-    /** 1) 회원 → 관리자 승격 요청 */
+    /** 사용자 → 관리자 승격 요청 */
     @PostMapping("/promotion/request")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> requestPromotion(
-            @AuthenticationPrincipal UserDetails principal
+            @RequestHeader("username") String username
     ) {
-        promotionService.requestPromotion(principal.getUsername());
+        promotionService.requestPromotion(username);
         return ResponseEntity.ok("승격 요청이 관리자에게 전달되었습니다.");
     }
 
-    /** 2) ADMIN → 특정 요청 승인 */
+    /** ADMIN → 특정 요청 승인 */
     @PostMapping("/promotion/approve/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> approvePromotion(@PathVariable Long id) {
+    public ResponseEntity<String> approvePromotion(
+            @RequestHeader("username") String username,
+            @PathVariable Long id
+    ) {
         promotionService.approve(id);
         return ResponseEntity.ok("승격 요청이 승인되었습니다.");
     }
 
-    /** 3) ADMIN → 특정 요청 거절 */
+    /** ADMIN → 특정 요청 거절 */
     @PostMapping("/promotion/reject/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> rejectPromotion(@PathVariable Long id) {
+    public ResponseEntity<String> rejectPromotion(
+            @RequestHeader("username") String username,
+            @PathVariable Long id
+    ) {
         promotionService.reject(id);
         return ResponseEntity.ok("승격 요청이 거절되었습니다.");
     }
 
-    /** 4) ADMIN → 대기 중인 요청 조회 (선택) */
+    /** ADMIN → 대기 중인 요청 조회 */
     @GetMapping("/promotion/pending")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<PromotionRequest>> listPending() {
+    public ResponseEntity<List<PromotionRequest>> listPending(
+            @RequestHeader("username") String username
+    ) {
         return ResponseEntity.ok(promotionService.listPending());
     }
 
-    /** 내 승격 요청 상태 조회 (USER 권한 이상) */
+    /** 내 승격 요청 상태 조회 */
     @GetMapping("/promotion/status")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, String>> getPromotionStatus(
-            @AuthenticationPrincipal UserDetails principal
+            @RequestHeader("username") String username
     ) {
-        String status = promotionService.getMyPromotionStatus(principal.getUsername());
+        String status = promotionService.getMyPromotionStatus(username);
         return ResponseEntity.ok(Map.of("status", status));
     }
 }
