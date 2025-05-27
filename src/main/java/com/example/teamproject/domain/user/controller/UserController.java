@@ -1,10 +1,15 @@
 package com.example.teamproject.domain.user.controller;
 
+import com.example.teamproject.domain.user.dto.request.AllergyRequestDto;
 import com.example.teamproject.domain.user.dto.request.UpdateUserDto;
+import com.example.teamproject.domain.user.dto.response.RejectionReasonDto;
 import com.example.teamproject.domain.user.dto.response.UserDto;
+import com.example.teamproject.domain.user.entity.AllergyRequest;
 import com.example.teamproject.domain.user.entity.PromotionRequest;
+import com.example.teamproject.domain.user.service.AllergyRequestService;
 import com.example.teamproject.domain.user.service.PromotionService;
 import com.example.teamproject.domain.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
@@ -22,6 +27,7 @@ public class UserController {
 
     private final UserService userService;
     private final PromotionService promotionService;
+    private final AllergyRequestService allergyRequestService;
 
 //    /** 회원가입 → (delegated to auth server) */
 //    @PostMapping("/signup")
@@ -91,13 +97,14 @@ public class UserController {
         return ResponseEntity.ok("승격 요청이 승인되었습니다.");
     }
 
-    /** ADMIN → 특정 요청 거절 */
+    /** ADMIN → 특정 요청 거절 (사유 포함) */
     @PostMapping("/promotion/reject/{id}")
     public ResponseEntity<String> rejectPromotion(
             @RequestHeader("username") String username,
-            @PathVariable Long id
+            @PathVariable Long id,
+            @RequestBody @Valid RejectionReasonDto dto
     ) {
-        promotionService.reject(id);
+        promotionService.reject(id, dto.getReason());
         return ResponseEntity.ok("승격 요청이 거절되었습니다.");
     }
 
@@ -117,4 +124,45 @@ public class UserController {
         String status = promotionService.getMyPromotionStatus(username);
         return ResponseEntity.ok(Map.of("status", status));
     }
+
+    /** 일반 유저 → 알레르기 추가 요청 */
+    @PostMapping("/allergy-request")
+    public ResponseEntity<String> requestAllergy(
+            @RequestHeader("username") String username,
+            @RequestBody @Valid AllergyRequestDto dto
+    ) {
+        allergyRequestService.requestAllergyAddition(username, dto);
+        return ResponseEntity.ok("알레르기 추가 요청이 관리자에게 전달되었습니다.");
+    }
+
+    /** ADMIN → 알레르기 요청 승인 */
+    @PostMapping("/allergy-request/approve/{id}")
+    public ResponseEntity<String> approveAllergy(
+            @RequestHeader("username") String username,
+            @PathVariable Long id
+    ) {
+        allergyRequestService.approveAllergy(id);
+        return ResponseEntity.ok("알레르기 요청이 승인되었습니다.");
+    }
+
+    /** ADMIN → 알레르기 요청 거절 */
+    @PostMapping("/allergy-request/reject/{id}")
+    public ResponseEntity<String> rejectAllergy(
+            @RequestHeader("username") String username,
+            @PathVariable Long id,
+            @RequestBody @Valid RejectionReasonDto dto    // 사유를 본문으로 받습니다
+    ) {
+        allergyRequestService.rejectAllergy(id, dto.getReason());
+        return ResponseEntity.ok("알레르기 요청이 거절되었습니다.");
+    }
+
+    /** ADMIN → 대기 중인 알레르기 요청 조회 */
+    @GetMapping("/allergy-request/pending")
+    public ResponseEntity<List<AllergyRequest>> listPendingAllergies(
+            @RequestHeader("username") String username
+    ) {
+        // 여기에리포지토리 메서드 추가 후 사용 가능
+        return ResponseEntity.ok(allergyRequestService.listPendingRequests());
+    }
+
 }

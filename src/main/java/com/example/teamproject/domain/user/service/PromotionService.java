@@ -97,35 +97,6 @@ public class PromotionService {
         }
     }
 
-    /** 2) ADMIN → 승격 승인 */
-    @Transactional
-    public PromotionRequest approve(Long requestId) {
-        PromotionRequest req = promoRepo.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 요청입니다."));
-        if (req.getStatus() != Status.PENDING) {
-            throw new IllegalStateException("이미 처리된 요청입니다.");
-        }
-
-        req.setStatus(Status.APPROVED);
-        req.setHandledAt(LocalDateTime.now());
-        req.getUser().setRole("ADMIN");
-        return req;
-    }
-
-    /** 3) ADMIN → 승격 거절 */
-    @Transactional
-    public PromotionRequest reject(Long requestId) {
-        PromotionRequest req = promoRepo.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 요청입니다."));
-        if (req.getStatus() != Status.PENDING) {
-            throw new IllegalStateException("이미 처리된 요청입니다.");
-        }
-
-        req.setStatus(Status.REJECTED);
-        req.setHandledAt(LocalDateTime.now());
-        return req;
-    }
-
     /** 4) ADMIN → 대기 중인 요청 조회 */
     @Transactional(readOnly = true)
     public List<PromotionRequest> listPending() {
@@ -144,5 +115,75 @@ public class PromotionService {
 
         PromotionRequest latest = list.get(0);
         return latest.getStatus().name();  // "PENDING", "APPROVED", "REJECTED"
+    }
+
+    /** ADMIN → 승격 승인 */
+    @Transactional
+    public PromotionRequest approve(Long requestId) {
+        PromotionRequest req = findPending(requestId);
+        req.setStatus(Status.APPROVED);
+        req.setHandledAt(LocalDateTime.now());
+        req.getUser().setRole("ADMIN");
+        sendUserNotification(req, true, null);
+        return req;
+    }
+
+    /** ADMIN → 승격 거절 (사유 포함) */
+    @Transactional
+    public PromotionRequest reject(Long requestId, String reason) {
+        PromotionRequest req = findPending(requestId);
+        req.setStatus(Status.REJECTED);
+        req.setHandledAt(LocalDateTime.now());
+        sendUserNotification(req, false, reason);
+        return req;
+    }
+
+    // 공통 헬퍼: PENDING 검증
+    private PromotionRequest findPending(Long requestId) {
+        PromotionRequest req = promoRepo.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 요청입니다."));
+        if (req.getStatus() != Status.PENDING) {
+            throw new IllegalStateException("이미 처리된 요청입니다.");
+        }
+        return req;
+    }
+
+    /**
+     * 승인/거절 결과를 요청자에게 메일로 통보
+     * @param req      처리된 요청
+     * @param approved true=승인, false=거절
+     * @param reason   거절 사유 (approved=false 일 때만 사용)
+     */
+    private void sendUserNotification(PromotionRequest req, boolean approved, String reason) {
+        User user = req.getUser();
+        try {
+            MimeMessage msg = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(msg, "UTF-8");
+            helper.setTo(user.getEmail());
+
+            if (approved) {
+                helper.setSubject("[승격 승인] 관리자 권한이 부여되었습니다.");
+                helper.setText(
+                        "<p>안녕하세요, " + user.getNickname() + "님.</p>" +
+                                "<p>요청하신 관리자 권한 부여가 <strong>승인</strong>되었습니다.</p>" +
+                                "<p><a href=\"http://localhost:5173/team6/admin\">관리자 페이지로 이동</a></p>",
+                        true
+                );
+            } else {
+                helper.setSubject("[승격 거절] 관리자 승격 요청이 거절되었습니다.");
+                StringBuilder sb = new StringBuilder();
+                sb.append("<p>안녕하세요, ").append(user.getNickname()).append("님.</p>");
+                sb.append("<p>요청하신 관리자 승격이 <strong>거절</strong>되었습니다.</p>");
+                sb.append("<p>거절 사유: ").append(reason).append("</p>");
+                sb.append("<p>문의사항이 있으시면 운영팀에 연락해 주세요.</p>");
+                helper.setText(sb.toString(), true);
+            }
+
+            mailSender.send(msg);
+
+        } catch (MessagingException e) {
+            System.err.println("사용자 알림 메일 전송 실패: " + user.getEmail());
+            e.printStackTrace();
+        }
     }
 }
