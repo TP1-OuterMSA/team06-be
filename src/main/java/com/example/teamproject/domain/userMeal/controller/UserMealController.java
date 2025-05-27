@@ -25,7 +25,7 @@ public class UserMealController {
     // 좋아하는 메뉴 추가
     @PostMapping("/favorite")
     public ResponseEntity<String> addFavoriteMeals(@RequestBody UserMealRequest userMealRequest) {
-        userMealService.addFavoriteMeals(userMealRequest);
+        userMealService.replaceFavoriteMeals(userMealRequest);
         return ResponseEntity.ok("좋아하는 메뉴가 반영되었습니다.");
     }
 

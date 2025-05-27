@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,19 +40,20 @@ public class UserMealService {
                 .toList();
     }
 
-    public void addFavoriteMeals(UserMealRequest userMealRequest) {
+    public void replaceFavoriteMeals(UserMealRequest userMealRequest) {
         Long userId = 3L;
         User user = userService.findById(userId);
-        for (Long mealId : userMealRequest.getMeals()) {
-            Meal meal = mealService.findById(mealId);
-            boolean exists = userMealRepository.existsByUserAndMeal(user, meal);
-            if (!exists) {
-                UserMeal userMeal = UserMeal.builder()
-                        .user(user)
-                        .meal(meal)
-                        .build();
-                userMealRepository.save(userMeal);
-            }
-        }
+        userMealRepository.deleteByUser(user);
+        if (userMealRequest.getMeals() == null || userMealRequest.getMeals().isEmpty())
+            return;
+        List<UserMeal> favoriteMeals = userMealRequest.getMeals().stream()
+                .map(mealId -> {
+                    Meal meal = mealService.findById(mealId);
+                    return UserMeal.builder()
+                            .user(user)
+                            .meal(meal)
+                            .build();
+                }).collect(Collectors.toList());
+        userMealRepository.saveAll(favoriteMeals);
     }
 }

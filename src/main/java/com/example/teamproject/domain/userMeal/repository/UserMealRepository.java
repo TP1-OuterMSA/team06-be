@@ -10,4 +10,5 @@ import java.util.List;
 public interface UserMealRepository extends JpaRepository<UserMeal, Long> {
     List<UserMeal> findByUserId(Long userId);
     boolean existsByUserAndMeal(User user, Meal meal);
+    void deleteByUser(User user);
 }
