@@ -11,4 +11,5 @@ import java.util.List;
 public class MealResponse {
     private Long id;
     private String name;
+    private String category;
 }

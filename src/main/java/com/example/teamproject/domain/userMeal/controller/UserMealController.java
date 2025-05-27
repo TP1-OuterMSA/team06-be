@@ -1,8 +1,6 @@
 package com.example.teamproject.domain.userMeal.controller;
 
 import com.example.teamproject.domain.meal.dto.MealResponse;
-import com.example.teamproject.domain.meal.entity.Meal;
-import com.example.teamproject.domain.userAllergy.dto.request.UpdateUserAllergyDto;
 import com.example.teamproject.domain.userMeal.dto.UserMealRequest;
 import com.example.teamproject.domain.userMeal.service.UserMealService;
 import lombok.RequiredArgsConstructor;
@@ -13,21 +11,22 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/team6/user/meal/favorites")
+@RequestMapping("api/team6/user/meal")
 public class UserMealController {
 
     private final UserMealService userMealService;
 
     // 좋아하는 메뉴 조회
-    @GetMapping
+    @GetMapping("/favorite")
     public ResponseEntity<List<MealResponse>> getFavoriteMeals(@RequestParam String username) {
         return ResponseEntity.ok(userMealService.getFavoriteMeals(username));
     }
 
     // 좋아하는 메뉴 추가
-    @PutMapping
-    public void updateUserAllergy(@RequestBody UserMealRequest userMealRequest) {
-//        userMealService.
+    @PostMapping("/favorite")
+    public ResponseEntity<String> addFavoriteMeals(@RequestBody UserMealRequest userMealRequest) {
+        userMealService.addFavoriteMeals(userMealRequest);
+        return ResponseEntity.ok("좋아하는 메뉴가 반영되었습니다.");
     }
 
 }
