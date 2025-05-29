@@ -32,8 +32,8 @@ public class AllergyRequestService {
     private final JavaMailSender mailSender;
 
     @Transactional
-    public void requestAllergyAddition(String username, AllergyRequestDto dto) {
-        User user = userRepo.findByUsername(username)
+    public void requestAllergyAddition(Long userId, AllergyRequestDto dto) {
+        User user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         AllergyRequest req = AllergyRequest.builder()

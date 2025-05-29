@@ -39,38 +39,38 @@ public class UserController {
     /** 내 정보 조회 */
     @GetMapping("/me")
     public ResponseEntity<UserDto> getMyPage(
-            @RequestHeader("username") String username
+            @RequestHeader("userId") Long userId
     ) {
-        UserDto me = userService.getByUsername(username);
+        UserDto me = userService.getByUserId(userId);
         return ResponseEntity.ok(me);
     }
 
     /** 내 정보 수정 */
     @PatchMapping("/update")
     public ResponseEntity<UserDto> updateUser(
-            @RequestHeader("username") String username,
+            @RequestHeader("userId") Long userId,
             @RequestBody UpdateUserDto dto
     ) {
-        UserDto updated = userService.updateByUsername(username, dto);
+        UserDto updated = userService.updateByUserId(userId, dto);
         return ResponseEntity.ok(updated);
     }
 
     /** 프로필 이미지 업로드 */
     @PostMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadProfileImage(
-            @RequestHeader("username") String username,
+            @RequestHeader("userId") Long userId,
             @RequestPart("file") MultipartFile file
     ) {
-        userService.saveProfileImageByUsername(username, file);
+        userService.saveProfileImageByUserId(userId, file);
         return ResponseEntity.ok("프로필 이미지 저장 완료");
     }
 
     /** 프로필 이미지 다운로드 */
     @GetMapping("/profile-image")
     public ResponseEntity<ByteArrayResource> downloadProfileImage(
-            @RequestHeader("username") String username
+            @RequestHeader("userId") Long userId
     ) {
-        var data = userService.loadProfileImageByUsername(username);
+        var data = userService.loadProfileImageByUserId(userId);
         ByteArrayResource resource = new ByteArrayResource(data.getFirst());
         return ResponseEntity.ok()
                 .contentLength(data.getFirst().length)
@@ -81,16 +81,16 @@ public class UserController {
     /** 사용자 → 관리자 승격 요청 */
     @PostMapping("/promotion/request")
     public ResponseEntity<String> requestPromotion(
-            @RequestHeader("username") String username
+            @RequestHeader("userId") Long userId
     ) {
-        promotionService.requestPromotion(username);
+        promotionService.requestPromotion(userId);
         return ResponseEntity.ok("승격 요청이 관리자에게 전달되었습니다.");
     }
 
     /** ADMIN → 특정 요청 승인 */
     @PostMapping("/promotion/approve/{id}")
     public ResponseEntity<String> approvePromotion(
-            @RequestHeader("username") String username,
+            @RequestHeader("userId") Long userId,
             @PathVariable Long id
     ) {
         promotionService.approve(id);
@@ -100,7 +100,7 @@ public class UserController {
     /** ADMIN → 특정 요청 거절 (사유 포함) */
     @PostMapping("/promotion/reject/{id}")
     public ResponseEntity<String> rejectPromotion(
-            @RequestHeader("username") String username,
+            @RequestHeader("userId") Long userId,
             @PathVariable Long id,
             @RequestBody @Valid RejectionReasonDto dto
     ) {
@@ -111,7 +111,7 @@ public class UserController {
     /** ADMIN → 대기 중인 요청 조회 */
     @GetMapping("/promotion/pending")
     public ResponseEntity<List<PromotionRequest>> listPending(
-            @RequestHeader("username") String username
+            @RequestHeader("userId") Long userId
     ) {
         return ResponseEntity.ok(promotionService.listPending());
     }
@@ -119,26 +119,26 @@ public class UserController {
     /** 내 승격 요청 상태 조회 */
     @GetMapping("/promotion/status")
     public ResponseEntity<Map<String, String>> getPromotionStatus(
-            @RequestHeader("username") String username
+            @RequestHeader("userId") Long userId
     ) {
-        String status = promotionService.getMyPromotionStatus(username);
+        String status = promotionService.getMyPromotionStatus(userId);
         return ResponseEntity.ok(Map.of("status", status));
     }
 
     /** 일반 유저 → 알레르기 추가 요청 */
     @PostMapping("/allergy-request")
     public ResponseEntity<String> requestAllergy(
-            @RequestHeader("username") String username,
+            @RequestHeader("userId") Long userId,
             @RequestBody @Valid AllergyRequestDto dto
     ) {
-        allergyRequestService.requestAllergyAddition(username, dto);
+        allergyRequestService.requestAllergyAddition(userId, dto);
         return ResponseEntity.ok("알레르기 추가 요청이 관리자에게 전달되었습니다.");
     }
 
     /** ADMIN → 알레르기 요청 승인 */
     @PostMapping("/allergy-request/approve/{id}")
     public ResponseEntity<String> approveAllergy(
-            @RequestHeader("username") String username,
+            @RequestHeader("userId") Long userId,
             @PathVariable Long id
     ) {
         allergyRequestService.approveAllergy(id);
@@ -148,7 +148,7 @@ public class UserController {
     /** ADMIN → 알레르기 요청 거절 */
     @PostMapping("/allergy-request/reject/{id}")
     public ResponseEntity<String> rejectAllergy(
-            @RequestHeader("username") String username,
+            @RequestHeader("userId") Long userId,
             @PathVariable Long id,
             @RequestBody @Valid RejectionReasonDto dto    // 사유를 본문으로 받습니다
     ) {
@@ -159,7 +159,7 @@ public class UserController {
     /** ADMIN → 대기 중인 알레르기 요청 조회 */
     @GetMapping("/allergy-request/pending")
     public ResponseEntity<List<AllergyRequest>> listPendingAllergies(
-            @RequestHeader("username") String username
+            @RequestHeader("userId") Long userId
     ) {
         // 여기에리포지토리 메서드 추가 후 사용 가능
         return ResponseEntity.ok(allergyRequestService.listPendingRequests());

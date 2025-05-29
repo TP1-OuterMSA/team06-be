@@ -29,8 +29,8 @@ public class PromotionService {
 
     /** 1) 사용자 → 관리자 승격 요청 */
     @Transactional
-    public PromotionRequest requestPromotion(String username) {
-        User user = userRepo.findByUsername(username)
+    public PromotionRequest requestPromotion(Long userId) {
+        User user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         List<PromotionRequest> pendingList = promoRepo.findByStatus(Status.PENDING);
@@ -104,8 +104,8 @@ public class PromotionService {
     }
 
     @Transactional(readOnly = true)
-    public String getMyPromotionStatus(String username) {
-        User user = userRepo.findByUsername(username)
+    public String getMyPromotionStatus(Long userId) {
+        User user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         List<PromotionRequest> list = promoRepo.findByUserOrderByRequestedAtDesc(user);
