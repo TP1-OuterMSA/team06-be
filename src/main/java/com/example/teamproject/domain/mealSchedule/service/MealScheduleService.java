@@ -79,11 +79,10 @@ public class MealScheduleService {
                 .toList();
     }
 
-    public MealScheduleResponse getDailyMeal(String day, String mealType) {
-        MealSchedule schedule = mealScheduleRepository.findByMealTypeAndDay(mealType, day)
-                .orElseThrow(() -> new IllegalArgumentException("해당 식단표 없음"));
-
-        return mapToResponse(schedule);
+    public List<MealScheduleResponse> getDailyMeals(String day) {
+        return mealScheduleRepository.findAllByDay(day).stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     private MealScheduleResponse mapToResponse(MealSchedule schedule) {

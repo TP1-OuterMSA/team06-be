@@ -22,12 +22,10 @@ public class MealScheduleController {
     }
 
     @GetMapping("/day")
-    public ResponseEntity<MealScheduleResponse> getDailyMeal(
-            @RequestParam String day,
-            @RequestParam String mealType
-    ) {
-        return ResponseEntity.ok(mealScheduleService.getDailyMeal(day, mealType));
+    public ResponseEntity<List<MealScheduleResponse>> getDailyMeals(@RequestParam String day) {
+        return ResponseEntity.ok(mealScheduleService.getDailyMeals(day));
     }
+
 
     @PostMapping("/update")
     public ResponseEntity<Void> saveMeal(@RequestBody MealEvent mealEvent) {

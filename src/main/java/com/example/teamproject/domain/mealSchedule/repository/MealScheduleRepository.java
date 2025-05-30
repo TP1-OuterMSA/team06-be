@@ -9,6 +9,6 @@ import java.util.Optional;
 public interface MealScheduleRepository extends JpaRepository<MealSchedule, Long> {
     Optional<MealSchedule> findByMealTypeAndDay(String mealType, String day);
     List<MealSchedule> findAllByDayIn(List<String> days);
-
     boolean existsByMealTypeAndDay(String mealType, String day);
+    List<MealSchedule> findAllByDay(String day);
 }
