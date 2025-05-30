@@ -1,4 +1,4 @@
-package com.example.teamproject.domain.meal;
+package com.example.teamproject.domain.meal.controller;
 
 import com.example.teamproject.domain.meal.dto.MealResponse;
 import com.example.teamproject.domain.meal.service.MealService;
