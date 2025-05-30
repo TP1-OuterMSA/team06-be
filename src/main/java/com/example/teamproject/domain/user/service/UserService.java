@@ -61,13 +61,13 @@ public class UserService {
         List<String> allergyNames = userAllergyService.getAllergyNamesByUserId(user.getId());
         return UserDto.from(user, allergyNames);
     }
+
     /**
      * 프로필 수정
      */
     @Transactional
     public UserDto updateByUserId(Long userId, UpdateUserDto dto) {
         User user = findUser(userId);
-
         if (dto.getNickname() != null && !dto.getNickname().equals(user.getNickname())) {
             user.setNickname(dto.getNickname());
         }

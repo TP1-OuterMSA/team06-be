@@ -14,12 +14,12 @@ public class MealKafkaListener {
     private final MealService mealService;
 
     @KafkaListener(topics = "meal.web.crawler.updated", groupId = "team06-service")
-    public void consume(MealEvent eventMenu) {
+    public void consumeMeal(MealEvent eventMenu) {
         System.out.println("eventMenu = " + eventMenu.getMealContents());
     }
 
     @KafkaListener(topics = "meal.category.updated", groupId = "team06-service")
-    public void consume(CategoryEvent categoryEvent) {
+    public void consumeCategory(CategoryEvent categoryEvent) {
         mealService.saveMeal(categoryEvent);
     }
 

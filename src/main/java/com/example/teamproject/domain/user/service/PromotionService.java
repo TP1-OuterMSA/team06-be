@@ -27,7 +27,9 @@ public class PromotionService {
     private final UserRepository userRepo;
     private final JavaMailSender mailSender;
 
-    /** 1) 사용자 → 관리자 승격 요청 */
+    /**
+     * 1) 사용자 → 관리자 승격 요청
+     */
     @Transactional
     public PromotionRequest requestPromotion(Long userId) {
         User user = userRepo.findById(userId)
@@ -97,8 +99,11 @@ public class PromotionService {
         }
     }
 
-    /** 4) ADMIN → 대기 중인 요청 조회 */
+    /**
+     * 4) ADMIN → 대기 중인 요청 조회
+     */
     @Transactional(readOnly = true)
+
     public List<PromotionRequest> listPending() {
         return promoRepo.findByStatus(Status.PENDING);
     }
@@ -117,7 +122,9 @@ public class PromotionService {
         return latest.getStatus().name();  // "PENDING", "APPROVED", "REJECTED"
     }
 
-    /** ADMIN → 승격 승인 */
+    /**
+     * ADMIN → 승격 승인
+     */
     @Transactional
     public PromotionRequest approve(Long requestId) {
         PromotionRequest req = findPending(requestId);
@@ -128,7 +135,9 @@ public class PromotionService {
         return req;
     }
 
-    /** ADMIN → 승격 거절 (사유 포함) */
+    /**
+     * ADMIN → 승격 거절 (사유 포함)
+     */
     @Transactional
     public PromotionRequest reject(Long requestId, String reason) {
         PromotionRequest req = findPending(requestId);
@@ -150,6 +159,7 @@ public class PromotionService {
 
     /**
      * 승인/거절 결과를 요청자에게 메일로 통보
+     *
      * @param req      처리된 요청
      * @param approved true=승인, false=거절
      * @param reason   거절 사유 (approved=false 일 때만 사용)
