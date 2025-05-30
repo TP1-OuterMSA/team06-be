@@ -1,4 +1,4 @@
-package com.example.teamproject.controller;
+package com.example.teamproject.domain.ticket.controller;
 
 import com.example.teamproject.domain.ticket.dto.PurchaseResponseDto;
 import com.example.teamproject.domain.ticket.dto.TicketDTO;

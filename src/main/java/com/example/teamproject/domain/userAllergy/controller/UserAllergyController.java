@@ -7,18 +7,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/team6/userAllergy")
+@RequestMapping("/api/team6/user/userAllergy")
 @RequiredArgsConstructor
 public class UserAllergyController {
     private final UserAllergyService userAllergyService;
 
     @PutMapping("/update")
-    public void updateUserAllergy(@RequestBody UpdateUserAllergyDto updateUserAllergyDto) {
-        userAllergyService.replaceUserAllergies(updateUserAllergyDto.getUserId(), updateUserAllergyDto.getAllergies());
+    public void updateUserAllergy(
+            @RequestHeader("userId") Long userId,
+            @RequestBody UpdateUserAllergyDto updateUserAllergyDto) {
+        userAllergyService.replaceUserAllergies(userId, updateUserAllergyDto.getAllergies());
     }
 
-    @GetMapping("/{userId}")
-    public UserAllergyDto getMyAllergies(@PathVariable Long userId) {
+    @GetMapping("/me")
+    public UserAllergyDto getMyAllergies(
+            @RequestHeader("userId") Long userId ) {
         return userAllergyService.getMyAllergies(userId);
     }
 

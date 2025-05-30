@@ -56,18 +56,18 @@ public class UserService {
      * 프로필 조회
      */
     @Transactional(readOnly = true)
-    public UserDto getByUsername(String username) {
-        User user = findUser(username);
+    public UserDto getByUserId(Long userId) {
+        User user = findUser(userId);
         List<String> allergyNames = userAllergyService.getAllergyNamesByUserId(user.getId());
         return UserDto.from(user, allergyNames);
     }
+
     /**
      * 프로필 수정
      */
     @Transactional
-    public UserDto updateByUsername(String username, UpdateUserDto dto) {
-        User user = findUser(username);
-
+    public UserDto updateByUserId(Long userId, UpdateUserDto dto) {
+        User user = findUser(userId);
         if (dto.getNickname() != null && !dto.getNickname().equals(user.getNickname())) {
             user.setNickname(dto.getNickname());
         }
@@ -87,8 +87,8 @@ public class UserService {
      * 프로필 이미지 저장
      */
     @Transactional
-    public void saveProfileImageByUsername(String username, MultipartFile file) {
-        User user = findUser(username);
+    public void saveProfileImageByUserId(Long userId, MultipartFile file) {
+        User user = findUser(userId);
         try {
             user.setProfileImage(file.getBytes());
             user.setProfileImageType(file.getContentType());
@@ -101,8 +101,8 @@ public class UserService {
      * 프로필 이미지 로드
      */
     @Transactional(readOnly = true)
-    public Pair<byte[], String> loadProfileImageByUsername(String username) {
-        User user = findUser(username);
+    public Pair<byte[], String> loadProfileImageByUserId(Long userId) {
+        User user = findUser(userId);
         if (user.getProfileImage() == null) {
             throw new IllegalStateException("저장된 프로필 이미지가 없습니다.");
         }
@@ -110,8 +110,13 @@ public class UserService {
     }
 
     /* --- 헬퍼 --- */
-    private User findUser(String username) {
-        return userRepository.findByUsername(username)
+    private User findUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+    }
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     }
 }
