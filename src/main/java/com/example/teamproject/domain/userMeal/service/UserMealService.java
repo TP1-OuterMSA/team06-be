@@ -11,6 +11,7 @@ import com.example.teamproject.domain.userMeal.entity.UserMeal;
 import com.example.teamproject.domain.userMeal.repository.UserMealRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,12 +24,8 @@ public class UserMealService {
     private final UserService userService;
     private final MealService mealService;
 
-    public List<MealResponse> getFavoriteMeals(String username) {
-        UserDto userDto = userService.getByUsername(username);
-        if (userDto == null) {
-            throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
-        }
-        Long userId = userDto.getId();
+    public List<MealResponse> getFavoriteMeals(Long userId) {
+        User user = userService.findById(userId);
         List<UserMeal> favoriteMeals = userMealRepository.findByUserId(userId);
         return favoriteMeals.stream()
                 .map(UserMeal::getMeal)
@@ -40,8 +37,8 @@ public class UserMealService {
                 .toList();
     }
 
-    public void replaceFavoriteMeals(UserMealRequest userMealRequest) {
-        Long userId = 3L;
+    @Transactional
+    public void replaceFavoriteMeals(Long userId, UserMealRequest userMealRequest) {
         User user = userService.findById(userId);
         userMealRepository.deleteByUser(user);
         if (userMealRequest.getMeals() == null || userMealRequest.getMeals().isEmpty())
