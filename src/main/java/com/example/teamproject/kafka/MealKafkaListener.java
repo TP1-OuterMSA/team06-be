@@ -4,6 +4,7 @@ import com.example.kafka_schemas.CategoryEvent;
 import com.example.kafka_schemas.MealEvent;
 import com.example.teamproject.domain.meal.service.MealService;
 import com.example.teamproject.domain.mealSchedule.service.MealScheduleService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
