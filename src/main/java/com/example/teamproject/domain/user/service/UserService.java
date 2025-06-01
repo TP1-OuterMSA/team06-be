@@ -1,11 +1,12 @@
 package com.example.teamproject.domain.user.service;
 
-import com.example.teamproject.domain.user.dto.request.SignupDto;
+import com.example.kafka_schemas.UserEvent;
 import com.example.teamproject.domain.user.dto.request.UpdateUserDto;
 import com.example.teamproject.domain.user.dto.response.UserDto;
 import com.example.teamproject.domain.user.entity.User;
 import com.example.teamproject.domain.user.repository.UserRepository;
 import com.example.teamproject.domain.userAllergy.service.UserAllergyService;
+import com.example.teamproject.kafka.UserKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserAllergyService userAllergyService;
     private final PasswordEncoder passwordEncoder;
+    private final UserKafkaProducer userkafkaProducer;
 
 //    public UserDto signup(SignupDto signupDto) {
 //        if (userRepository.existsByUsername(signupDto.getUsername())) {
@@ -80,6 +82,16 @@ public class UserService {
 
         userAllergyService.replaceUserAllergies(user.getId(), dto.getAllergies());
         List<String> allergyNames = userAllergyService.getAllergyNamesByUserId(user.getId());
+
+        UserEvent avroEvent = UserEvent.newBuilder()
+                .setId(user.getId())
+                .setUsername(user.getUsername())
+                .setEmail(user.getEmail())
+                .setNickname(user.getNickname())
+                .build();
+
+        userkafkaProducer.sendUpdate(avroEvent);
+
         return UserDto.from(user, allergyNames);
     }
 
