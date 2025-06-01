@@ -11,6 +11,7 @@ env:
   ECR_REPO: 809691348554.dkr.ecr.ap-northeast-2.amazonaws.com/team06-be-production-repo
   INFRA_REPO: https://github.com/TP1-OuterMSA/msa-infra-main.git
   SERVICE_PATH: charts/services/team06-be
+  
 
 permissions:
   id-token: write
