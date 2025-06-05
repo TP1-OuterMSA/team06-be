@@ -6,6 +6,6 @@ import java.util.List;
 
 @Getter
 public class UpdateUserAllergyDto {
-    private Long userId;
+    
     private List<Long> allergies;
 }

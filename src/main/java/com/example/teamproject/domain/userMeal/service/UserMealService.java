@@ -1,0 +1,56 @@
+package com.example.teamproject.domain.userMeal.service;
+
+import com.example.teamproject.domain.meal.dto.MealResponse;
+import com.example.teamproject.domain.meal.entity.Meal;
+import com.example.teamproject.domain.meal.service.MealService;
+import com.example.teamproject.domain.user.dto.response.UserDto;
+import com.example.teamproject.domain.user.entity.User;
+import com.example.teamproject.domain.user.service.UserService;
+import com.example.teamproject.domain.userMeal.dto.UserMealRequest;
+import com.example.teamproject.domain.userMeal.entity.UserMeal;
+import com.example.teamproject.domain.userMeal.repository.UserMealRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class UserMealService {
+
+    private final UserMealRepository userMealRepository;
+    private final UserService userService;
+    private final MealService mealService;
+
+    public List<MealResponse> getFavoriteMeals(Long userId) {
+        User user = userService.findById(userId);
+        List<UserMeal> favoriteMeals = userMealRepository.findByUserId(userId);
+        return favoriteMeals.stream()
+                .map(UserMeal::getMeal)
+                .map(meal -> MealResponse.builder()
+                        .id(meal.getId())
+                        .name(meal.getName())
+                        .category(meal.getCategory())
+                        .build())
+                .toList();
+    }
+
+    @Transactional
+    public void replaceFavoriteMeals(Long userId, UserMealRequest userMealRequest) {
+        User user = userService.findById(userId);
+        userMealRepository.deleteByUser(user);
+        if (userMealRequest.getMeals() == null || userMealRequest.getMeals().isEmpty())
+            return;
+        List<UserMeal> favoriteMeals = userMealRequest.getMeals().stream()
+                .map(mealId -> {
+                    Meal meal = mealService.findById(mealId);
+                    return UserMeal.builder()
+                            .user(user)
+                            .meal(meal)
+                            .build();
+                }).collect(Collectors.toList());
+        userMealRepository.saveAll(favoriteMeals);
+    }
+}

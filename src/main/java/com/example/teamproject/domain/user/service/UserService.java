@@ -1,11 +1,12 @@
 package com.example.teamproject.domain.user.service;
 
-import com.example.teamproject.domain.user.dto.request.SignupDto;
+import com.example.kafka_schemas.UserEvent;
 import com.example.teamproject.domain.user.dto.request.UpdateUserDto;
 import com.example.teamproject.domain.user.dto.response.UserDto;
 import com.example.teamproject.domain.user.entity.User;
 import com.example.teamproject.domain.user.repository.UserRepository;
 import com.example.teamproject.domain.userAllergy.service.UserAllergyService;
+import com.example.teamproject.kafka.UserKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserAllergyService userAllergyService;
     private final PasswordEncoder passwordEncoder;
+    private final UserKafkaProducer userkafkaProducer;
 
 //    public UserDto signup(SignupDto signupDto) {
 //        if (userRepository.existsByUsername(signupDto.getUsername())) {
@@ -56,18 +58,18 @@ public class UserService {
      * 프로필 조회
      */
     @Transactional(readOnly = true)
-    public UserDto getByUsername(String username) {
-        User user = findUser(username);
+    public UserDto getByUserId(Long userId) {
+        User user = findUser(userId);
         List<String> allergyNames = userAllergyService.getAllergyNamesByUserId(user.getId());
         return UserDto.from(user, allergyNames);
     }
+
     /**
      * 프로필 수정
      */
     @Transactional
-    public UserDto updateByUsername(String username, UpdateUserDto dto) {
-        User user = findUser(username);
-
+    public UserDto updateByUserId(Long userId, UpdateUserDto dto) {
+        User user = findUser(userId);
         if (dto.getNickname() != null && !dto.getNickname().equals(user.getNickname())) {
             user.setNickname(dto.getNickname());
         }
@@ -80,6 +82,16 @@ public class UserService {
 
         userAllergyService.replaceUserAllergies(user.getId(), dto.getAllergies());
         List<String> allergyNames = userAllergyService.getAllergyNamesByUserId(user.getId());
+
+        UserEvent avroEvent = UserEvent.newBuilder()
+                .setId(user.getId())
+                .setUsername(user.getUsername())
+                .setEmail(user.getEmail())
+                .setNickname(user.getNickname())
+                .build();
+
+        userkafkaProducer.sendUpdate(avroEvent);
+
         return UserDto.from(user, allergyNames);
     }
 
@@ -87,8 +99,8 @@ public class UserService {
      * 프로필 이미지 저장
      */
     @Transactional
-    public void saveProfileImageByUsername(String username, MultipartFile file) {
-        User user = findUser(username);
+    public void saveProfileImageByUserId(Long userId, MultipartFile file) {
+        User user = findUser(userId);
         try {
             user.setProfileImage(file.getBytes());
             user.setProfileImageType(file.getContentType());
@@ -101,8 +113,8 @@ public class UserService {
      * 프로필 이미지 로드
      */
     @Transactional(readOnly = true)
-    public Pair<byte[], String> loadProfileImageByUsername(String username) {
-        User user = findUser(username);
+    public Pair<byte[], String> loadProfileImageByUserId(Long userId) {
+        User user = findUser(userId);
         if (user.getProfileImage() == null) {
             throw new IllegalStateException("저장된 프로필 이미지가 없습니다.");
         }
@@ -110,8 +122,13 @@ public class UserService {
     }
 
     /* --- 헬퍼 --- */
-    private User findUser(String username) {
-        return userRepository.findByUsername(username)
+    private User findUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+    }
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     }
 }

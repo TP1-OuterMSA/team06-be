@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.4'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.github.davidmc24.gradle.plugin.avro' version '1.5.0'
 }
 
 group = 'com.example'
@@ -21,6 +22,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url 'https://packages.confluent.io/maven/' }
 }
 
 dependencies {
@@ -42,8 +44,28 @@ dependencies {
     // 모니터링
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    implementation 'org.springframework.security:spring-security-crypto'
+
+    //메일~
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // 알러지 추가 문의 빈칸 검증
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    //avro
+    implementation 'org.apache.avro:avro:1.11.4'
+    implementation 'io.confluent:kafka-avro-serializer:7.6.0'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+avro {
+    fieldVisibility = "PRIVATE"
 }
